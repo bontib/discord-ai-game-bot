@@ -1,5 +1,10 @@
+import asyncio
+
 import discord
 from discord.ext import commands
+
+from src.ai.pipeline import VoicePipeline
+from src.bot.sink import StreamingSink
 
 
 def create_bot() -> commands.Bot:
@@ -8,6 +13,7 @@ def create_bot() -> commands.Bot:
     intents.voice_states = True
 
     bot = commands.Bot(intents=intents)
+    pipelines: dict[int, VoicePipeline] = {}
 
     @bot.event
     async def on_ready():
@@ -29,8 +35,18 @@ def create_bot() -> commands.Bot:
             await ctx.respond("You need to be in a voice channel first.")
             return
 
+        if ctx.guild.id in pipelines:
+            await ctx.respond("Already listening in this server.")
+            return
+
         vc = await ctx.author.voice.channel.connect()
-        vc.start_recording(discord.sinks.WaveSink(), on_recording_finished, ctx.channel)
+        pipeline = VoicePipeline(guild=ctx.guild, text_channel=ctx.channel)
+        pipeline.start()
+        pipelines[ctx.guild.id] = pipeline
+
+        sink = StreamingSink(asyncio.get_running_loop(), pipeline.queue)
+        sink.vc = vc
+        vc.start_recording(sink, on_recording_error)
         await ctx.respond("Listening for voice commands.")
 
     @bot.slash_command(name="stop", description="Stop listening and leave the voice channel")
@@ -42,6 +58,11 @@ def create_bot() -> commands.Bot:
 
         if vc.recording:
             vc.stop_recording()
+
+        pipeline = pipelines.pop(ctx.guild.id, None)
+        if pipeline is not None:
+            await pipeline.stop()
+
         await vc.disconnect()
         await ctx.respond("Stopped listening.")
 
@@ -53,6 +74,7 @@ async def handle_tagged_message(message: discord.Message) -> None:
     pass
 
 
-async def on_recording_finished(sink: discord.sinks.Sink, channel: discord.TextChannel) -> None:
-    # TODO: hand off recorded per-user audio to Whisper/STT pipeline
-    pass
+def on_recording_error(exc: Exception | None) -> None:
+    # Called by the voice reader thread; must not touch asyncio state.
+    if exc is not None:
+        print(f"Voice recording stopped with error: {exc}")
