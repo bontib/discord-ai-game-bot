@@ -1,11 +1,4 @@
-# Discord bot
-# discord.py
-
-# AI / LLM
-# openai-whisper
-# llama-cpp-python
-
-# Utilities
-# python-dotenv
-# requests
-# aiohttp
+discord.py===2.7.1
+discord.py[voice]===2.7.1
+python-dotenv===1.2.2
+asyncio===4.0.0
