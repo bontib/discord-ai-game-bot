@@ -1,3 +1,7 @@
+# Local AI model files (GGUF, bin, etc.) — keep directory but ignore contents
+models/*
+!models/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
