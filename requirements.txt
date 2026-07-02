@@ -1,0 +1,11 @@
+# Discord bot
+# discord.py
+
+# AI / LLM
+# openai-whisper
+# llama-cpp-python
+
+# Utilities
+# python-dotenv
+# requests
+# aiohttp
