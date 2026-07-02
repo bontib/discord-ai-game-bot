@@ -33,7 +33,7 @@ discord-ai-game-bot/
 ## Key Technologies
 | Purpose | Library |
 |---|---|
-| Discord integration | `discord.py` |
+| Discord integration | `py-cord` |
 | Speech-to-text | `openai-whisper` (local) |
 | LLM inference | `llama-cpp-python` (local GGUF models) |
 | HTTP requests | `aiohttp` / `requests` |
