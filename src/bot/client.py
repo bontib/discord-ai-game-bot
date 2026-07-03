@@ -39,6 +39,8 @@ def create_bot() -> commands.Bot:
             await ctx.respond("Already listening in this server.")
             return
 
+        await ctx.defer()
+
         vc = await ctx.author.voice.channel.connect()
         pipeline = VoicePipeline(guild=ctx.guild, text_channel=ctx.channel)
         pipeline.start()
