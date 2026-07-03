@@ -56,7 +56,7 @@ def create_bot() -> commands.Bot:
             await ctx.respond("I'm not in a voice channel.")
             return
 
-        if vc.recording:
+        if vc.is_recording():
             vc.stop_recording()
 
         pipeline = pipelines.pop(ctx.guild.id, None)
